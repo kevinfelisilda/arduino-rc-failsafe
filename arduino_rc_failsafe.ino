@@ -1,6 +1,7 @@
 int sIn = 10;
 int sOut = 9;
 unsigned long dur;
+unsigned long failsafeVal = 1930;
 int mapped;
 
 unsigned long previousMillis = 0;
@@ -31,12 +32,14 @@ void loop()
   if (dur > 2000)
   {
     RCstatus = 2;
-    dur = 2000;
+    //dur = 2000;
+    dur = failsafeVal;
   }
   else if(dur < 1000)
   {
     RCstatus = 2;
-    dur = 1000;
+    //dur = 1000;
+    dur = failsafeVal;
   }
   else
   {

@@ -43,7 +43,7 @@ void loop()
     RCstatus = 1;
   }
   
-  mapped = map(dur, 1000,2000,1,255);
+  mapped = map(dur, 1000,2000,125,255);
   
   analogWrite(sOut, mapped);
   

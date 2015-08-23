@@ -1,8 +1,13 @@
 int sIn = 10;
 int sOut = 9;
 unsigned long dur;
-unsigned long failsafeVal = 1930;
+unsigned long failsafeVal = 1900;
 int mapped;
+
+//amount of time to regain rc signal from the time its lost
+int debounce = 3; //seconds
+
+unsigned long lastDisconnection = 0;
 
 unsigned long previousMillis = 0;
 unsigned long ledBlinkInterval = 100;
@@ -10,6 +15,7 @@ unsigned long ledBlinkInterval = 100;
 int ledIndicator = 13;
 int ledIndState = LOW;
 int RCstatus = 0;
+int prevStatus = 0;
 /*
 0 default
 1 ok
@@ -27,34 +33,41 @@ void setup()
 
 void loop()
 {
+  unsigned long currentMillis = millis();
+  
   dur = pulseIn(sIn, HIGH, 20000);
   
-  if (dur > 2000)
+  //falls to acceptable range
+  if (dur >= 1000 && dur <= 2000)
   {
-    RCstatus = 2;
-    //dur = 2000;
-    dur = failsafeVal;
+    //check if it regains signal
+    if (prevStatus == 2 && (currentMillis - lastDisconnection) < (debounce * 1000))
+    {
+      dur = failsafeVal;
+      RCstatus = 2;
+    }
+    else
+    {
+      RCstatus = 1;
+    }
   }
-  else if(dur < 1000)
+  else
   {
     RCstatus = 2;
     //dur = 1000;
     dur = failsafeVal;
-  }
-  else
-  {
-    RCstatus = 1;
+    lastDisconnection = currentMillis;
   }
   
-  mapped = map(dur, 1000,2000,125,255);
+  prevStatus = RCstatus;
+  
+  mapped = map(dur, 1000,2000,125,254);
   
   analogWrite(sOut, mapped);
   
   
   
   //update LED Status
-  unsigned long currentMillis = millis();
-  
   if (currentMillis - previousMillis > ledBlinkInterval)
   {
       previousMillis = currentMillis;
